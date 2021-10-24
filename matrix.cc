@@ -4,8 +4,12 @@
 
 #include "matrix.h"
 
-int Matrix::elem(size_t number) {
-  return this->data()[number / row_length_][number % col_length_];
+decltype(auto) Matrix::elem(size_t number) {
+  return (this->data()[number / row_length_][number % col_length_]);
+}
+
+decltype(auto) Matrix::elem(size_t number) const {
+  return (this->data()[number / row_length_][number % col_length_]);
 }
 
 void Matrix::Randomize() {
@@ -67,15 +71,20 @@ Matrix MatrixParallelProduct(const Matrix &matrix_1, const Matrix &matrix_2) {
   size_t thread_num = std::min(full_size, kMaxThreadNumber);
   Matrix result(row_length, col_length);
   std::vector<std::thread *> threads(thread_num);
+  std::vector<size_t> borders(thread_num + 1);
+  size_t jump = full_size / thread_num;
+  borders[0] = 0;
+  for (size_t i = 1; i < thread_num; ++i) {
+    borders[i] = borders[i - 1] + jump;
+  }
+  borders[thread_num] = full_size;
   for (size_t i = 0; i < thread_num; ++i) {
     threads[i] = new std::thread(&MatrixParallelProductThread,
                                  std::cref(matrix_1),
                                  std::cref(matrix_2),
                                  std::ref(result),
-                                 i,
-                                 std::cref(col_length),
-                                 std::cref(calc_length),
-                                 std::cref(full_size));
+                                 borders[i],
+                                 borders[i + 1]);
   }
   for (size_t i = 0; i < thread_num; ++i) {
     threads[i]->join();
@@ -84,16 +93,16 @@ Matrix MatrixParallelProduct(const Matrix &matrix_1, const Matrix &matrix_2) {
 }
 
 void MatrixParallelProductThread(const Matrix &matrix_1, const Matrix &matrix_2, Matrix &result,
-                                 size_t start_elem, const size_t &col_length, const size_t &calc_length, const size_t &full_size) {
-  size_t i, row_now = start_elem / col_length, col_now = start_elem % col_length;
-  while (start_elem < full_size) {
+                                 size_t start_elem, size_t end_elem) {
+  size_t i, calc_length = matrix_1.GetColNumber(), col_length = matrix_2.GetColNumber(),
+  row = start_elem / col_length, col = start_elem % col_length;
+  for (; start_elem < end_elem; ++start_elem) {
+    result[row][col] = 0;
     for (i = 0; i < calc_length; ++i) {
-      result[row_now][col_now] += matrix_1[row_now][i] * matrix_2[i][col_now];
+      result[row][col] += matrix_1[row][i] * matrix_2[i][col];
     }
-    start_elem += kMaxThreadNumber;
-//    row_now += (kMaxThreadNumber + col_now) / col_length;
-//    col_now = (kMaxThreadNumber + col_now) % col_length;
-  row_now = start_elem / col_length;
-  col_now = start_elem % col_length;
+    if (++col == col_length) {
+      ++row; col = 0;
+    }
   }
 }
