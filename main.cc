@@ -3,8 +3,8 @@
 #include <limits>
 #include <chrono>
 
-#include "pi.h"
-#include "matrix.h"
+#include "pi/pi.h"
+#include "matrix/matrix.h"
 
 #define PI_CALCULATION
 #define MATRIX_CALCULATION
