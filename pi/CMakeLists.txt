@@ -3,4 +3,4 @@ project(learning_std_thread_pi)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_library(${PROJECT_NAME} pi/pi.cc)
+add_library(learning_std_thread_pi pi.cc)
