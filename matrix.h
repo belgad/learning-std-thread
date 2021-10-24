@@ -44,6 +44,6 @@ std::ostream &operator<<(std::ostream &os, const Matrix &matrix);
 Matrix MatrixSequenceProduct(const Matrix &matrix_1, const Matrix &matrix_2);
 Matrix MatrixParallelProduct(const Matrix &matrix_1, const Matrix &matrix_2);
 void MatrixParallelProductThread(const Matrix &matrix_1, const Matrix &matrix_2, Matrix &result,
-                                 size_t start_elem, const size_t &col_length, const size_t &calc_length, const size_t &full_size);
+                                 size_t start_elem, size_t end_elem);
 
 #endif //LEARNING_STD_THREAD__MATRIX_H_
