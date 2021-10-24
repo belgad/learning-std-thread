@@ -6,11 +6,11 @@
 #include "pi/pi.h"
 #include "matrix/matrix.h"
 
-#define PI_CALCULATION
+//#define PI_CALCULATION
 #define MATRIX_CALCULATION
 
 const size_t kMaxThreadNumber = 16;
-const size_t kSizeTRandMin = 1000, kSizeTRandMax = 3000;
+const size_t kSizeTRandMin = 500, kSizeTRandMax = 1000;
 const int kIntRandMin = 1, kIntRandMax = 100000;
 
 int main() {
