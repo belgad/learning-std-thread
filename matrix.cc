@@ -4,8 +4,12 @@
 
 #include "matrix.h"
 
-int Matrix::elem(size_t number) {
-  return this->data()[number / row_length_][number % col_length_];
+decltype(auto) Matrix::elem(size_t number) {
+  return (this->data()[number / row_length_][number % col_length_]);
+}
+
+decltype(auto) Matrix::elem(size_t number) const {
+  return (this->data()[number / row_length_][number % col_length_]);
 }
 
 void Matrix::Randomize() {

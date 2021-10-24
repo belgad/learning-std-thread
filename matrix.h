@@ -17,7 +17,7 @@ extern const int kIntRandMin, kIntRandMax;
 
 class Vector : public std::vector<int> {
  public:
-  Vector(size_t elem_num) : std::vector<int>(elem_num, 0) {}
+  Vector(size_t elem_num) : std::vector<int>(elem_num) {}
 };
 
 class Matrix : public std::vector<Vector> {
@@ -26,7 +26,8 @@ class Matrix : public std::vector<Vector> {
       std::vector<Vector>(row_length, Vector(col_length)), row_length_(row_length), col_length_(col_length) {
     if (randomize) this->Randomize();
   }
-  int elem(size_t number);
+  decltype(auto) elem(size_t number);
+  decltype(auto) elem(size_t number) const;
   void Randomize();
   decltype(auto) GetRowNumber();
   decltype(auto) GetRowNumber() const;
