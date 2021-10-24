@@ -22,7 +22,7 @@ class Vector : public std::vector<int> {
 
 class Matrix : public std::vector<Vector> {
  public:
-  Matrix(size_t row_length, size_t col_length, bool randomize = false, bool zero = false) :
+  Matrix(size_t row_length, size_t col_length, bool randomize = false) :
       std::vector<Vector>(row_length, Vector(col_length)), row_length_(row_length), col_length_(col_length) {
     if (randomize) this->Randomize();
   }
