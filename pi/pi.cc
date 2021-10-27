@@ -4,26 +4,25 @@
 
 #include "pi.h"
 
-long double Func(long double x) {
+double Func(double x) {
   return 4.0 / (1.0 + x * x);
 }
 
-long double PiSequenceCalculation(const long double &dx) {
-  long double pi = 0.0;
-  for (long double x = 0.0; x < 1.0; x += dx) {
+double PiSequenceCalculation(const size_t &interval_num) {
+  double pi = 0.0, dx = 1.0 / static_cast<double>(interval_num);
+  for (double x = 0.0; x < 1.0; x += dx) {
     pi += Func(x);
   }
   pi *= dx;
   return pi;
 }
 
-long double PiParallelCalculation(const long double &dx) {
-  long double pi = 0.0;
-  long double x_start = 0.0;
-  size_t thread_number = std::min(kMaxThreadNumber, static_cast<size_t>(ceill(1.0 / dx)));
-  long double jump = dx * thread_number;
+double PiParallelCalculation(const size_t &interval_num, const size_t &max_thread_num) {
+  double pi = 0.0, x_start = 0.0, dx = 1.0 / static_cast<double>(interval_num);
+  size_t thread_number = std::min(max_thread_num, static_cast<size_t>(ceill(1.0 / dx)));
+  double jump = dx * static_cast<double>(thread_number);
   std::vector<std::thread *> threads(thread_number);
-  std::vector<long double> thread_results(thread_number, 0);
+  std::vector<double> thread_results(thread_number, 0);
   for (size_t i = 0; i < thread_number; ++i, x_start += dx) {
     threads[i] = new std::thread(&PiParallelCalculationThread, x_start, std::cref(jump), std::ref(thread_results[i]));
   }
@@ -35,7 +34,7 @@ long double PiParallelCalculation(const long double &dx) {
   return pi;
 }
 
-void PiParallelCalculationThread(long double x_start, const long double &jump, long double &thread_result) {
+void PiParallelCalculationThread(double x_start, const double &jump, double &thread_result) {
   for (; x_start < 1.0; x_start += jump) {
     thread_result += Func(x_start);
   }
