@@ -12,9 +12,9 @@ decltype(auto) Matrix::elem(size_t number) const {
   return (this->data()[number / row_length_][number % col_length_]);
 }
 
-void Matrix::Randomize() {
+void Matrix::Randomize(int rand_min, int rand_max) {
   std::mt19937 random_engine(std::chrono::high_resolution_clock::now().time_since_epoch().count());
-  std::uniform_int_distribution uniform_int_distribution(kIntRandMin, kIntRandMax);
+  std::uniform_int_distribution uniform_int_distribution(rand_min, rand_max);
 
   for (size_t i = 0; i < this->row_length_; ++i) {
     for (size_t j = 0; j < this->col_length_; ++j) {
@@ -66,9 +66,9 @@ Matrix MatrixSequenceProduct(const Matrix &matrix_1, const Matrix &matrix_2) {
   return result;
 }
 
-Matrix MatrixParallelProduct(const Matrix &matrix_1, const Matrix &matrix_2) {
+Matrix MatrixParallelProduct(const Matrix &matrix_1, const Matrix &matrix_2, const size_t &max_thread_num) {
   size_t row_length = matrix_1.GetRowNumber(), col_length = matrix_2.GetColNumber(), calc_length = matrix_1.GetColNumber(), full_size = row_length * col_length;
-  size_t thread_num = std::min(full_size, kMaxThreadNumber);
+  size_t thread_num = std::min(full_size, max_thread_num);
   Matrix result(row_length, col_length);
   std::vector<std::thread *> threads(thread_num);
   std::vector<size_t> borders(thread_num + 1);

@@ -11,10 +11,6 @@
 #include <chrono>
 #include <thread>
 
-extern const size_t kMaxThreadNumber;
-extern const size_t kSizeTRandMin, kSizeTRandMax;
-extern const int kIntRandMin, kIntRandMax;
-
 class Vector : public std::vector<int> {
  public:
   Vector(size_t elem_num) : std::vector<int>(elem_num) {}
@@ -22,13 +18,13 @@ class Vector : public std::vector<int> {
 
 class Matrix : public std::vector<Vector> {
  public:
-  Matrix(size_t row_length, size_t col_length, bool randomize = false) :
+  Matrix(size_t row_length, size_t col_length, bool randomize = false, int rand_min = 0, int rand_max = RAND_MAX) :
       std::vector<Vector>(row_length, Vector(col_length)), row_length_(row_length), col_length_(col_length) {
-    if (randomize) this->Randomize();
+    if (randomize) this->Randomize(rand_min, rand_max);
   }
   decltype(auto) elem(size_t number);
   decltype(auto) elem(size_t number) const;
-  void Randomize();
+  void Randomize(int rand_min, int rand_max);
   decltype(auto) GetRowNumber();
   decltype(auto) GetRowNumber() const;
   decltype(auto) GetColNumber();
@@ -42,7 +38,7 @@ std::ostream &operator<<(std::ostream &os, const Vector &vector);
 std::ostream &operator<<(std::ostream &os, const Matrix &matrix);
 
 Matrix MatrixSequenceProduct(const Matrix &matrix_1, const Matrix &matrix_2);
-Matrix MatrixParallelProduct(const Matrix &matrix_1, const Matrix &matrix_2);
+Matrix MatrixParallelProduct(const Matrix &matrix_1, const Matrix &matrix_2, const size_t &max_thread_num);
 void MatrixParallelProductThread(const Matrix &matrix_1, const Matrix &matrix_2, Matrix &result,
                                  size_t start_elem, size_t end_elem);
 
