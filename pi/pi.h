@@ -11,9 +11,9 @@
 
 extern const size_t kMaxThreadNumber;
 
-long double Func(long double x);
-long double PiSequenceCalculation(const long double &dx = 1e-8);
-long double PiParallelCalculation(const long double &dx = 1e-8);
-void PiParallelCalculationThread(long double x_start, const long double &jump, long double &thread_result);
+double Func(double x);
+double PiSequenceCalculation(const double &dx = 1e-8);
+double PiParallelCalculation(const double &dx = 1e-8);
+void PiParallelCalculationThread(double x_start, const double &jump, double &thread_result);
 
 #endif //LEARNING_STD_THREAD__PI_H_
