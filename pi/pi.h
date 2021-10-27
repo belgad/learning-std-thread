@@ -9,11 +9,9 @@
 #include <vector>
 #include <cmath>
 
-extern const size_t kMaxThreadNumber;
-
 double Func(double x);
-double PiSequenceCalculation(const double &dx = 1e-8);
-double PiParallelCalculation(const double &dx = 1e-8);
+double PiSequenceCalculation(const size_t &interval_num);
+double PiParallelCalculation(const size_t &interval_num, const size_t &max_thread_num);
 void PiParallelCalculationThread(double x_start, const double &jump, double &thread_result);
 
 #endif //LEARNING_STD_THREAD__PI_H_

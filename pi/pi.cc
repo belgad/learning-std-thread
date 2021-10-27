@@ -8,8 +8,8 @@ double Func(double x) {
   return 4.0 / (1.0 + x * x);
 }
 
-double PiSequenceCalculation(const double &dx) {
-  double pi = 0.0;
+double PiSequenceCalculation(const size_t &interval_num) {
+  double pi = 0.0, dx = 1.0 / static_cast<double>(interval_num);
   for (double x = 0.0; x < 1.0; x += dx) {
     pi += Func(x);
   }
@@ -17,11 +17,10 @@ double PiSequenceCalculation(const double &dx) {
   return pi;
 }
 
-double PiParallelCalculation(const double &dx) {
-  double pi = 0.0;
-  double x_start = 0.0;
-  size_t thread_number = std::min(kMaxThreadNumber, static_cast<size_t>(ceill(1.0 / dx)));
-  double jump = dx * thread_number;
+double PiParallelCalculation(const size_t &interval_num, const size_t &max_thread_num) {
+  double pi = 0.0, x_start = 0.0, dx = 1.0 / static_cast<double>(interval_num);
+  size_t thread_number = std::min(max_thread_num, static_cast<size_t>(ceill(1.0 / dx)));
+  double jump = dx * static_cast<double>(thread_number);
   std::vector<std::thread *> threads(thread_number);
   std::vector<double> thread_results(thread_number, 0);
   for (size_t i = 0; i < thread_number; ++i, x_start += dx) {
