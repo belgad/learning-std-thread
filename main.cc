@@ -97,9 +97,9 @@ int main(int argc, char *argv[]) {
     // END   PI SEQUENCE CALCULATION
     auto pi_sequence_end_time = std::chrono::high_resolution_clock::now();
     auto pi_sequence_elapsed_time =
-        std::chrono::duration_cast<std::chrono::nanoseconds>(pi_sequence_end_time - pi_sequence_start_time).count();
+        std::chrono::duration_cast<std::chrono::microseconds>(pi_sequence_end_time - pi_sequence_start_time).count();
     std::cout << "  SEQUENCE:" << std::endl
-              << "  TIME:    " << pi_sequence_elapsed_time << " ns" << std::endl
+              << "  TIME:    " << pi_sequence_elapsed_time << " us" << std::endl
               << "  RESULT:  " << pi_sequence_result << std::endl;
     auto pi_parallel_start_time = std::chrono::high_resolution_clock::now();
     // START PI PARALLEL CALCULATION
@@ -107,9 +107,9 @@ int main(int argc, char *argv[]) {
     // END   PI PARALLEL CALCULATION
     auto pi_parallel_end_time = std::chrono::high_resolution_clock::now();
     auto pi_parallel_elapsed_time =
-        std::chrono::duration_cast<std::chrono::nanoseconds>(pi_parallel_end_time - pi_parallel_start_time).count();
+        std::chrono::duration_cast<std::chrono::microseconds>(pi_parallel_end_time - pi_parallel_start_time).count();
     std::cout << "  PARALLEL:" << std::endl
-              << "  TIME:    " << pi_parallel_elapsed_time << " ns" << std::endl
+              << "  TIME:    " << pi_parallel_elapsed_time << " us" << std::endl
               << "  RESULT:  " << pi_parallel_result << std::endl;
     std::cout << "  EFF:     "
               << static_cast<long double>(pi_sequence_elapsed_time) / static_cast<long double>(pi_parallel_elapsed_time)
@@ -131,20 +131,20 @@ int main(int argc, char *argv[]) {
     auto matrix_product_sequence_result = MatrixSequenceProduct(matrix_1, matrix_2);
     // END   MATRIX SEQUENCE CALCULATION
     auto matrix_sequence_end_time = std::chrono::high_resolution_clock::now();
-    auto matrix_sequence_elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>
+    auto matrix_sequence_elapsed_time = std::chrono::duration_cast<std::chrono::microseconds>
         (matrix_sequence_end_time - matrix_sequence_start_time).count();
     std::cout << "  SEQUENCE:" << std::endl
-              << "  TIME:    " << matrix_sequence_elapsed_time << " ns" << std::endl;
+              << "  TIME:    " << matrix_sequence_elapsed_time << " us" << std::endl;
     if (print_matrix) std::cout << "  RESULT:" << std::endl << matrix_product_sequence_result;
     auto matrix_parallel_start_time = std::chrono::high_resolution_clock::now();
     // START MATRIX PARALLEL CALCULATION
     auto matrix_product_parallel_result = MatrixParallelProduct(matrix_1, matrix_2, max_thread_num);
     // END   MATRIX PARALLEL CALCULATION
     auto matrix_parallel_end_time = std::chrono::high_resolution_clock::now();
-    auto matrix_parallel_elapsed_time =std::chrono::duration_cast<std::chrono::nanoseconds>
+    auto matrix_parallel_elapsed_time =std::chrono::duration_cast<std::chrono::microseconds>
         (matrix_parallel_end_time - matrix_parallel_start_time).count();
     std::cout << "  PARALLEL:" << std::endl
-              << "  TIME:    " << matrix_parallel_elapsed_time << " ns" << std::endl;
+              << "  TIME:    " << matrix_parallel_elapsed_time << " us" << std::endl;
     if (print_matrix) std::cout << "  RESULT:" << std::endl << matrix_product_parallel_result;
     std::cout << "  EFF:     "
               << static_cast<long double>(matrix_sequence_elapsed_time)
