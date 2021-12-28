@@ -1,0 +1,589 @@
+\documentclass{report}
+\usepackage[warn]{mathtext}
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english, russian]{babel}
+\usepackage[pdftex]{hyperref}
+\usepackage{tempora}
+\usepackage[12pt]{extsizes}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{multirow}
+\usepackage{graphicx}
+\usepackage{indentfirst}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{autobreak}
+\usepackage{array}
+\usepackage{float}
+\geometry{a4paper,top=2cm,bottom=2cm,left=2.5cm,right=1.5cm}
+\setlength{\parskip}{0.5cm}
+\setlist{nolistsep, itemsep=0.3cm,parsep=0pt}
+\lstset{
+language=C++,
+basicstyle=\footnotesize,
+keywordstyle=\color{blue}\ttfamily,
+stringstyle=\color{red}\ttfamily,
+commentstyle=\color{green}\ttfamily,
+morecomment=[l][\color{red}]{\#}, 
+tabsize=2,
+breaklines=true,
+breakatwhitespace=true,
+title=\lstname,       
+}
+
+\begin{document}
+\begin{titlepage}
+\begin{center}
+Министерство науки и высшего образования Российской Федерации
+\end{center}
+\begin{center}
+Федеральное государственное автономное образовательное учреждение высшего образования \\
+Национальный исследовательский Нижегородский государственный университет им. Н.И. Лобачевского
+\end{center}
+\begin{center}
+Институт информационных технологий, математики и механики
+\end{center}
+\begin{center}
+Кафедра математического обеспечения и суперкомпьютерных технологий
+\end{center}
+\vspace{4em}
+\begin{center}
+\textbf{\LargeОтчет по научно-исследовательской работе} \\
+\end{center}
+\begin{center}
+\textbf{\Large«Нахождение числа pi. Умножение матриц»} \\
+\end{center}
+\vspace{4em}
+\newbox{\lbox}
+\savebox{\lbox}{\hbox{text}}
+\newlength{\maxl}
+\setlength{\maxl}{\wd\lbox}
+\hfill\parbox{7cm}{
+\hspace*{5cm}\hspace*{-5cm}\textbf{Выполнил:} \\ студент группы 381906-3 \\ Даньшин Г. В. \\ \\
+\hspace*{5cm}\hspace*{-5cm}\textbf{Проверил:}\\ доцент кафедры МОСТ, \\ кандидат технических наук \\ Сысоев А. В.\\
+}
+\vspace{\fill}
+\begin{center} Нижний Новгород \\ 2021 \end{center}
+\end{titlepage}
+
+\tableofcontents
+\clearpage
+
+\section*{Введение}
+\addcontentsline{toc}{section}{Введение}
+\par Параллельное программирование - раздел программирования, связанный с изучением и разработкой методов для распараллеливания обработки информации с целью ускорения вычислений. В отличие от программирования последовательных вычислений, в котором алгоритм реализуется по шагам строго последовательно, параллельная программа представляет собой совокупность нескольких процессов, протекающих одновременно. При таком подходе необходимо учитывать организацию взаимодействия между различными вычислительными процессами и распределение ресурсов, разделяемых между ними.
+\clearpage
+
+\section*{Постановка задачи}
+\addcontentsline{toc}{section}{Постановка задачи}
+\par В данной научно-исследовательской работе необходимо разработать последовательную и параллельную версии алгоритма численного интегрирования методом прямоугольников для нахождения числа pi и алгоритма умножения матриц, а также провести тестирование производительности разработанных алгоритмов.\\
+Параллельные алгоритмы будут реализованы при помощи технологии std::thread.
+\clearpage
+
+\section*{Описание алгоритма}
+\addcontentsline{toc}{section}{Описание алгоритма}
+\subsection*{Нахождение числа pi}
+\addcontentsline{toc}{subsection}{Нахождение числа pi}
+\par Для нахождения числа pi необходимо найти интеграл \( \int\limits_{0}^{1} \frac{4}{1 + x^{2}} \). Для этого будет использоваться численное интегрирование методом левых прямоугольников со следующей формулой расчета: \( \int\limits_{0}^{1} f(x) = \frac{1}{n} \sum\limits_{i = 0}^{n - 1} f(\frac{i}{n}) \). На вход алгоритма подается число интервалов разбиения \( n \), и для каждого интервала считается значение функции \( f(x) = \frac{4}{1 + x^{2}}\) в крайней левой точке. Значения во всех интервалах складываются и умножаются на длину каждого интервала, равную \( \frac{1}{n} \). При достаточно большом количестве интервалов разбиения получившееся значение приближенно равно искомому интегралу.
+\subsection*{Умножение матриц}
+\addcontentsline{toc}{subsection}{Умножение матриц}
+\par Пусть даны матрица \( A \) размерами \( n \times k \) и матрица \( B \) размерами \( k \times m \). Тогда их произведение - матрица \( C = A B \) размерами \( n \times m \) находится по следующей формуле: \( (c_{ij}) = \sum\limits_{t = 1}^{k} a_{it} b_{tj} \), где \( i = \overline{1,n} \), \( j = \overline{1,m} \) и \( a_{it}, b_{tj}, c_{ij} \) - элементы соответствующих матриц, располагающиеся на пересечении соответствующих строки и столбца.
+\clearpage
+
+\section*{Описание схемы распараллеливания}
+\addcontentsline{toc}{section}{Описание схемы распараллеливания}
+\subsection*{Нахождение числа pi}
+\addcontentsline{toc}{subsection}{Нахождение числа pi}
+\par Программа вычисляет количество запускаемых потоков \( thread\_number = \min (T, I) \), где \( T \) - максимально допустимое количество потоков, \( I \) - количество интервалов разбиения, текущую точку подсчета для каждого потока и длину сдвига. Далее программа запускает \( thread\_number \) потоков, передавая им начальные параметры подсчета.\\
+Каждый поток подсчитывает значение заданной функции в текущей точке, увеличивая ее координату на переданную длину сдвига до превышения ей единицы, прибавляя полученное значение функции к переменной-счетчику.\\
+После завершения всех созданных потоков основной поток суммирует получившиеся значения, тем самым находя приближенный интеграл заданной функции на интервале \( [0, 1] \), равный числу pi.
+\subsection*{Умножение матриц}
+\addcontentsline{toc}{subsection}{Умножение матриц}
+\par Программа вычисляет количество запускаемых потоков \( thread\_number = \min (T, N) \), где \( T \) - максимально допустимое количество потоков, \( N \) - количество элементов в итоговой матрице, начальный и конечный элемент для каждого потока. Далее программа запускает \( thread\_number \) потоков, передавая им начальные параметры.\\
+Каждый поток вычисляет элементы итоговой матрицы с переданного начального до конечного.\\
+После завершения всех созданных потоков в основном потоке функция параллельного вычисления возвращает итоговую матрицу.
+\clearpage
+
+\section*{Описание программной реализации}
+\addcontentsline{toc}{section}{Описание программной реализации}
+\par Программа состоит из файла исходного кода main.cc и двух поддиректорий pi и matrix.
+\par В директории pi реализованы функции для последовательного и параллельного нахождения числа pi, прототипы которых расположены в заголовочном файле pi.h, реализация - в файле исходного кода pi.cc.
+\par Прототип функции для последовательного нахождения числа pi.
+\begin{lstlisting}
+double PiSequenceCalculation(const size_t &interval_num);
+\end{lstlisting}
+Параметром функции является количество интервалов разбиения.
+\par Прототип функции для параллельного нахождения числа pi.
+\begin{lstlisting}
+double PiParallelCalculation(const size_t &interval_num, const size_t &max_thread_num);
+\end{lstlisting}
+Первым параметром функции является количество интервалов разбиения, вторым - максимально допустимое количество запускаемых потоков.
+\par В директории matrix реализован класс `Матрица' и функции для последовательного и параллельного умножения матриц, прототипы которых расположены в заголовочном файле matrix.h, реализация - в файле исходного кода matrix.cc.
+\par Прототип функции для последовательного умножения матриц.
+\begin{lstlisting}
+Matrix MatrixSequenceProduct(const Matrix &matrix_1, const Matrix &matrix_2);
+\end{lstlisting}
+Параметрами функции являются умножаемые матрицы.
+\par Прототип функции для параллельного умножения матриц.
+\begin{lstlisting}
+Matrix MatrixParallelProduct(const Matrix &matrix_1, const Matrix &matrix_2, const size_t &max_thread_num);
+\end{lstlisting}
+Первымы двумя параметрами функции являются умножаемые матрицы, третьим - максимально допустимое количество запускаемых потоков.
+\clearpage
+
+\section*{Результаты экспериментов}
+\addcontentsline{toc}{section}{Результаты экспериментов}
+\par Вычислительные эксперименты для оценки эффективности работы параллельного алгоритма проводились на ПК со следующими характеристиками:
+\begin{itemize}
+\item Процессор: Intel(R) Core(TM) i7-10700K CPU @ 3.80GHz 8C/16T;
+\item Оперативная память: 2x16 ГБ (DDR4), 2-channel, 2400 МГц, Latency: 16-18-18-32;
+\item Операционная система: Windows 11 Pro Insider Preview 22483.1011.
+\end{itemize}
+\par Сборка проекта производилась с помощью утилиты cmake с параметром конфигурации CMAKE\_BUILD\_TYPE=RELEASE, компилятора g++.exe (x86\_64-posix-sjlj-rev0, Built by MinGW-W64 project) 8.1.0. Для каждого набора параметров проводилось 10 тестов, далее приведены средние результаты.
+\begin{table}[H]
+\caption{Результаты вычислительных экспериментов в тесте 1: нахождение числа pi}
+\centering
+\begin{tabular}{| m{2cm} | m{2cm} | m{4.5cm} | m{4.5cm} | m{2cm} |}
+\toprule
+Количество потоков & Количество интервалов & Среднее время работы последовательного алгоритма (мкс) & Среднее время работы параллельного алгоритма (мкс) & Среднее ускорение  \\
+\midrule
+8  & 10000000   & 11099   & 2400   & 4.624474 \\
+8  & 100000000  & 111099  & 18100  & 6.137919 \\
+8  & 1000000000 & 1113000 & 187799 & 5.926524 \\
+16 & 10000000   & 11099   & 1699   & 6.530419 \\
+16 & 100000000  & 111098  & 14403  & 7.713352 \\
+16 & 1000000000 & 1112651 & 130899 & 8.500042 \\
+32 & 10000000   & 10999   & 1899   & 5.791239 \\
+32 & 100000000  & 111099  & 13399  & 8.291094 \\
+32 & 1000000000 & 1111270 & 133013 & 8.354594 \\
+\bottomrule
+\end{tabular}
+\end{table}
+\begin{table}[H]
+\caption{Результаты вычислительных экспериментов в тесте 2: умножение матриц}
+\centering
+\begin{tabular}{| m{2cm} | m{2cm} | m{4.5cm} | m{4.5cm} | m{2cm} |}
+\toprule
+Количество потоков & Размер матриц & Среднее время работы последовательного алгоритма (мкс) & Среднее время работы параллельного алгоритма (мкс) & Среднее ускорение  \\
+\midrule
+8  & 500  & 93146    & 23172   & 4.019748 \\
+8  & 1000 & 1185117  & 369021  & 3.211510 \\
+8  & 1500 & 9186423  & 2044798 & 4.492581 \\
+8  & 2000 & 40619783 & 7175700 & 5.660741 \\
+16 & 500  & 100653   & 18851   & 5.339381 \\
+16 & 1000 & 1195695  & 485352  & 2.463559 \\
+16 & 1500 & 9089857  & 2063379 & 4.405325 \\
+16 & 2000 & 40645144 & 5554713 & 7.317236 \\
+32 & 500  & 91231    & 13924   & 6.551768 \\
+32 & 1000 & 1166387  & 490152  & 2.379642 \\
+32 & 1500 & 8974127  & 2041238 & 4.396414 \\
+32 & 2000 & 40212680 & 5299083 & 7.588611 \\
+\bottomrule
+\end{tabular}
+\end{table}
+\clearpage
+
+\section*{Выводы из результатов экспериментов}
+\addcontentsline{toc}{section}{Выводы из результатов экспериментов}
+\par Из данных, полученных в результате экспериментов, можно сделать вывод о том, что в большинстве случаев параллельный алгоритм работает быстрее, чем последовательный. Исключением являются случаи, когда количество запускаемых потоков превышает количество потоков процессора, что приводит к состоянию конкуренции за вычислительные ресурсы процессора, при котором все запускаемые потоки не могут выполняться одновременно.
+\clearpage
+
+\section*{Заключение}
+\addcontentsline{toc}{section}{Заключение}
+\par В ходе данной работы были успешно реализованы последовательная и параллельная версии алгоритма численного интегрирования для нахождения числа pi и алгоритма умножения матриц с использованием технологии std::thread. Были проведены тесты производительности разработанных алгоритмов, показавшие эффективность параллельных алгоритмов по сравнению с последовательными. Таким образом мной были получены первичные навыки разработки параллельного программного обеспечения.
+\clearpage
+
+\section*{Литература}
+\addcontentsline{toc}{section}{Литература}
+\begin{enumerate}
+\item std::thread - cppreference.com - Электронный ресурс. URL: \url{https://en.cppreference.com/w/cpp/thread/thread} (дата обращения: 20.10.2021)
+\end{enumerate}
+\clearpage
+
+\section*{Приложение}
+\addcontentsline{toc}{section}{Приложение}
+main.cc
+\begin{lstlisting}
+#include <iostream>
+#include <iomanip>
+#include <limits>
+#include <chrono>
+#include <cstring>
+
+#include "pi/pi.h"
+#include "matrix/matrix.h"
+
+void print_usage(char *path) {
+	std::cout
+		<< "Usage: " << path << " [-t N] [-pi [-i N]] [-matrix [-smin N] [-smax N] [-rmin N] [-rmax N]]" << std::endl
+		<< std::endl
+		<< "Available options: " << std::endl
+		<< "-t N             Maximum thread number (default: 16)" << std::endl
+		<< "-pi              Calculate pi" << std::endl
+		<< "-i N             Number of intervals for pi calculation (default: 10^8)" << std::endl
+		<< "-matrix          Calculate matrix" << std::endl
+		<< "-smin N          SIZE_MIN size for matrix generation (default: 100)" << std::endl
+		<< "-smax N          SIZE_MAX matrix generation (default: 1000)" << std::endl
+		<< "-rmin N          RAND_MIN for matrix generation (default: 0)" << std::endl
+		<< "-rmax N          RAND_MAX for matrix generation (default: RAND_MAX)" << std::endl;
+}
+
+int main(int argc, char *argv[]) {
+
+	if (argc == 1) {
+	print_usage(argv[0]);
+	return 1;
+	}
+
+	size_t max_thread_num = 16;
+	size_t pi_interval_num = 100000000;
+	size_t size_min = 100, size_max = 1000;
+	int rand_min = 0, rand_max = RAND_MAX;
+	bool pi_calculation = false, matrix_calculation = false;
+
+	for (int i = 1; i < argc; ++i) {
+	if (strcmp(argv[i], "-t") == 0) {
+		max_thread_num = std::stoull(argv[++i]);
+	} else if (strcmp(argv[i], "-pi") == 0) {
+		pi_calculation = true;
+	} else if (strcmp(argv[i], "-i") == 0) {
+		pi_interval_num = std::stoull(argv[++i]);
+	} else if (strcmp(argv[i], "-matrix") == 0) {
+		matrix_calculation = true;
+	} else if (strcmp(argv[i], "-smin") == 0) {
+		size_min = std::stoi(argv[++i]);
+	} else if (strcmp(argv[i], "-smax") == 0) {
+		size_max = std::stoi(argv[++i]);
+	} else if (strcmp(argv[i], "-rmin") == 0) {
+		rand_min = std::stoi(argv[++i]);
+	} else if (strcmp(argv[i], "-rmax") == 0) {
+		rand_max = std::stoi(argv[++i]);
+	}
+	}
+
+	if (!(pi_calculation || matrix_calculation)) {
+	print_usage(argv[0]);
+	return 1;
+	}
+
+	std::cout << "Execution parameters:" << std::endl
+	<< "  Max thread number:  " << max_thread_num << std::endl;
+	if (pi_calculation) {
+	std::cout << "  Pi calculation:     true" << std::endl << "  Interval number:    " << pi_interval_num << std::endl;
+	} else {
+	std::cout << "  Pi calculation:     false" << std::endl;
+	}
+	if (matrix_calculation) {
+	std::cout << "  Matrix calculation: true" << std::endl << "  SIZE_MIN:           " << size_min << std::endl;
+	if (size_min > size_max) {
+		std::cout << "  SIZE_MIN is greater than SIZE_MAX" << std::endl
+				<< "  Setting SIZE_MAX equal to SIZE_MIN" << std::endl;
+		size_max = size_min;
+	} else {
+		std::cout << "  SIZE_MAX:           " << size_max << std::endl;
+	}
+	std::cout << "  RAND_MIN:           " << rand_min << std::endl;
+	if (rand_min > rand_max) {
+		std::cout << "  RAND_MIN is greater than RAND_MAX" << std::endl
+				<< "  Setting RAND_MAX equal to RAND_MIN" << std::endl;
+		rand_max = rand_min;
+	} else {
+		std::cout << "  RAND_MAX:           " << rand_max << std::endl;
+	}
+	} else {
+	std::cout << "  Matrix calculation: false" << std::endl;
+	}
+
+	std::cout << std::setprecision(std::numeric_limits<double>::digits10 + 1);
+	if (pi_calculation) {
+	std::cout << "PI CALCULATION" << std::endl;
+	auto pi_sequence_start_time = std::chrono::high_resolution_clock::now();
+	// START PI SEQUENCE CALCULATION
+	auto pi_sequence_result = PiSequenceCalculation(pi_interval_num);
+	// END   PI SEQUENCE CALCULATION
+	auto pi_sequence_end_time = std::chrono::high_resolution_clock::now();
+	auto pi_sequence_elapsed_time =
+		std::chrono::duration_cast<std::chrono::microseconds>(pi_sequence_end_time - pi_sequence_start_time).count();
+	std::cout << "  SEQUENCE:" << std::endl
+				<< "  TIME:    " << pi_sequence_elapsed_time << " us" << std::endl
+				<< "  RESULT:  " << pi_sequence_result << std::endl;
+	auto pi_parallel_start_time = std::chrono::high_resolution_clock::now();
+	// START PI PARALLEL CALCULATION
+	auto pi_parallel_result = PiParallelCalculation(pi_interval_num, max_thread_num);
+	// END   PI PARALLEL CALCULATION
+	auto pi_parallel_end_time = std::chrono::high_resolution_clock::now();
+	auto pi_parallel_elapsed_time =
+		std::chrono::duration_cast<std::chrono::microseconds>(pi_parallel_end_time - pi_parallel_start_time).count();
+	std::cout << "  PARALLEL:" << std::endl
+				<< "  TIME:    " << pi_parallel_elapsed_time << " us" << std::endl
+				<< "  RESULT:  " << pi_parallel_result << std::endl;
+	std::cout << "  EFF:     "
+				<< static_cast<long double>(pi_sequence_elapsed_time) / static_cast<long double>(pi_parallel_elapsed_time)
+				<< std::endl;
+	}
+	if (matrix_calculation) {
+	std::mt19937 random_engine(std::chrono::high_resolution_clock::now().time_since_epoch().count());
+	std::uniform_int_distribution<size_t> uniform_size_t_distribution(size_min, size_max);
+	size_t size_1 = uniform_size_t_distribution(random_engine),
+		size_2 = uniform_size_t_distribution(random_engine),
+		size_3 = uniform_size_t_distribution(random_engine);
+	bool print_matrix = size_1 < 15 && size_2 < 15 && size_3 < 15 && size_1 * size_3 < 100;
+	Matrix matrix_1(size_1, size_2, true), matrix_2(size_2, size_3, true, rand_min, rand_max);
+	std::cout << "MATRIX CALCULATION" << std::endl;
+	std::cout << "  SIZE 1:\t" << size_1 << "\tSIZE 2:\t" << size_2 << "\tSIZE 3:\t" << size_3 << std::endl;
+	if (print_matrix) std::cout << "  MATRIX 1:" << std::endl << matrix_1 << "  MATRIX_2:" << std::endl << matrix_2;
+	auto matrix_sequence_start_time = std::chrono::high_resolution_clock::now();
+	// START MATRIX SEQUENCE CALCULATION
+	auto matrix_product_sequence_result = MatrixSequenceProduct(matrix_1, matrix_2);
+	// END   MATRIX SEQUENCE CALCULATION
+	auto matrix_sequence_end_time = std::chrono::high_resolution_clock::now();
+	auto matrix_sequence_elapsed_time = std::chrono::duration_cast<std::chrono::microseconds>
+		(matrix_sequence_end_time - matrix_sequence_start_time).count();
+	std::cout << "  SEQUENCE:" << std::endl
+				<< "  TIME:    " << matrix_sequence_elapsed_time << " us" << std::endl;
+	if (print_matrix) std::cout << "  RESULT:" << std::endl << matrix_product_sequence_result;
+	auto matrix_parallel_start_time = std::chrono::high_resolution_clock::now();
+	// START MATRIX PARALLEL CALCULATION
+	auto matrix_product_parallel_result = MatrixParallelProduct(matrix_1, matrix_2, max_thread_num);
+	// END   MATRIX PARALLEL CALCULATION
+	auto matrix_parallel_end_time = std::chrono::high_resolution_clock::now();
+	auto matrix_parallel_elapsed_time =std::chrono::duration_cast<std::chrono::microseconds>
+		(matrix_parallel_end_time - matrix_parallel_start_time).count();
+	std::cout << "  PARALLEL:" << std::endl
+				<< "  TIME:    " << matrix_parallel_elapsed_time << " us" << std::endl;
+	if (print_matrix) std::cout << "  RESULT:" << std::endl << matrix_product_parallel_result;
+	std::cout << "  EFF:     "
+				<< static_cast<long double>(matrix_sequence_elapsed_time)
+					/ static_cast<long double>(matrix_parallel_elapsed_time)
+				<< std::endl;
+	}
+	return 0;
+}	
+\end{lstlisting}
+pi/pi.h
+\begin{lstlisting}
+//
+// Created by glebd on 18.10.2021.
+//
+
+#ifndef LEARNING_STD_THREAD__PI_H_
+#define LEARNING_STD_THREAD__PI_H_
+
+#include <thread>
+#include <vector>
+#include <cmath>
+
+double Func(double x);
+double PiSequenceCalculation(const size_t &interval_num);
+double PiParallelCalculation(const size_t &interval_num, const size_t &max_thread_num);
+void PiParallelCalculationThread(double x_start, const double &jump, double &thread_result);
+
+#endif //LEARNING_STD_THREAD__PI_H_  
+\end{lstlisting}
+pi/pi.cc
+\begin{lstlisting}
+//
+// Created by glebd on 18.10.2021.
+//
+
+#include "pi.h"
+
+double Func(double x) {
+  return 4.0 / (1.0 + x * x);
+}
+
+double PiSequenceCalculation(const size_t &interval_num) {
+  double pi = 0.0, dx = 1.0 / static_cast<double>(interval_num);
+  for (double x = 0.0; x < 1.0; x += dx) {
+    pi += Func(x);
+  }
+  pi *= dx;
+  return pi;
+}
+
+double PiParallelCalculation(const size_t &interval_num, const size_t &max_thread_num) {
+  double pi = 0.0, x_start = 0.0, dx = 1.0 / static_cast<double>(interval_num);
+  size_t thread_number = std::min(max_thread_num, static_cast<size_t>(ceil(1.0 / dx)));
+  double jump = dx * static_cast<double>(thread_number);
+  std::vector<std::thread *> threads(thread_number);
+  std::vector<double> thread_results(thread_number, 0);
+  for (size_t i = 0; i < thread_number; ++i, x_start += dx) {
+    threads[i] = new std::thread(&PiParallelCalculationThread, x_start, std::cref(jump), std::ref(thread_results[i]));
+  }
+  for (size_t i = 0; i < thread_number; ++i) {
+    threads[i]->join();
+    pi += thread_results[i];
+  }
+  pi *= dx;
+  return pi;
+}
+
+void PiParallelCalculationThread(double x_start, const double &jump, double &thread_result) {
+  for (; x_start < 1.0; x_start += jump) {
+    thread_result += Func(x_start);
+  }
+}  
+\end{lstlisting}
+matrix/matrix.h
+\begin{lstlisting}
+//
+// Created by glebd on 18.10.2021.
+//
+
+#ifndef LEARNING_STD_THREAD__MATRIX_H_
+#define LEARNING_STD_THREAD__MATRIX_H_
+
+#include <vector>
+#include <iostream>
+#include <random>
+#include <chrono>
+#include <thread>
+
+class Vector : public std::vector<int> {
+  public:
+  Vector(size_t elem_num) : std::vector<int>(elem_num) {}
+};
+
+class Matrix : public std::vector<Vector> {
+  public:
+  Matrix(size_t row_length, size_t col_length, bool randomize = false, int rand_min = 0, int rand_max = RAND_MAX) :
+      std::vector<Vector>(row_length, Vector(col_length)), row_length_(row_length), col_length_(col_length) {
+    if (randomize) this->Randomize(rand_min, rand_max);
+  }
+  decltype(auto) elem(size_t number);
+  decltype(auto) elem(size_t number) const;
+  void Randomize(int rand_min, int rand_max);
+  decltype(auto) GetRowNumber();
+  decltype(auto) GetRowNumber() const;
+  decltype(auto) GetColNumber();
+  decltype(auto) GetColNumber() const;
+  protected:
+  size_t row_length_;
+  size_t col_length_;
+};
+
+std::ostream &operator<<(std::ostream &os, const Vector &vector);
+std::ostream &operator<<(std::ostream &os, const Matrix &matrix);
+
+Matrix MatrixSequenceProduct(const Matrix &matrix_1, const Matrix &matrix_2);
+Matrix MatrixParallelProduct(const Matrix &matrix_1, const Matrix &matrix_2, const size_t &max_thread_num);
+void MatrixParallelProductThread(const Matrix &matrix_1, const Matrix &matrix_2, Matrix &result,
+                                  size_t start_elem, size_t end_elem);
+
+#endif //LEARNING_STD_THREAD__MATRIX_H_  
+\end{lstlisting}
+matrix/matrix.cc
+\begin{lstlisting}
+//
+// Created by glebd on 18.10.2021.
+//
+
+#include "matrix.h"
+
+decltype(auto) Matrix::elem(size_t number) {
+  return (this->data()[number / row_length_][number % col_length_]);
+}
+
+decltype(auto) Matrix::elem(size_t number) const {
+  return (this->data()[number / row_length_][number % col_length_]);
+}
+
+void Matrix::Randomize(int rand_min, int rand_max) {
+  std::mt19937 random_engine(std::chrono::high_resolution_clock::now().time_since_epoch().count());
+  std::uniform_int_distribution uniform_int_distribution(rand_min, rand_max);
+
+  for (size_t i = 0; i < this->row_length_; ++i) {
+    for (size_t j = 0; j < this->col_length_; ++j) {
+      this->data()[i][j] = uniform_int_distribution(random_engine);
+    }
+  }
+}
+
+decltype(auto) Matrix::GetRowNumber() {
+  return (this->row_length_);
+}
+
+decltype(auto) Matrix::GetRowNumber() const {
+  return (this->row_length_);
+}
+
+decltype(auto) Matrix::GetColNumber() {
+  return (this->col_length_);
+}
+
+decltype(auto) Matrix::GetColNumber() const {
+  return (this->col_length_);
+}
+
+std::ostream &operator<<(std::ostream &os, const Vector &vector) {
+  for (const auto &i : vector) {
+    os << i << '\t';
+  }
+  return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const Matrix &matrix) {
+  for (const auto &i : matrix) {
+    os << i << std::endl;
+  }
+  return os;
+}
+
+Matrix MatrixSequenceProduct(const Matrix &matrix_1, const Matrix &matrix_2) {
+  size_t row_length = matrix_1.GetRowNumber(), col_num = matrix_2.GetColNumber(), calc_len = matrix_1.GetColNumber();
+  Matrix result(row_length, col_num);
+  for (size_t i = 0; i < row_length; ++i) {
+    for (size_t j = 0; j < col_num; ++j) {
+      for (size_t k = 0; k < calc_len; ++k) {
+        result[i][j] += matrix_1[i][k] * matrix_2[k][j];
+      }
+    }
+  }
+  return result;
+}
+
+Matrix MatrixParallelProduct(const Matrix &matrix_1, const Matrix &matrix_2, const size_t &max_thread_num) {
+  size_t row_length = matrix_1.GetRowNumber(), col_length = matrix_2.GetColNumber(), calc_length = matrix_1.GetColNumber(), full_size = row_length * col_length;
+  size_t thread_num = std::min(full_size, max_thread_num);
+  Matrix result(row_length, col_length);
+  std::vector<std::thread *> threads(thread_num);
+  std::vector<size_t> borders(thread_num + 1);
+  size_t jump = full_size / thread_num;
+  borders[0] = 0;
+  for (size_t i = 1; i < thread_num; ++i) {
+    borders[i] = borders[i - 1] + jump;
+  }
+  borders[thread_num] = full_size;
+  for (size_t i = 0; i < thread_num; ++i) {
+    threads[i] = new std::thread(&MatrixParallelProductThread,
+                                  std::cref(matrix_1),
+                                  std::cref(matrix_2),
+                                  std::ref(result),
+                                  borders[i],
+                                  borders[i + 1]);
+  }
+  for (size_t i = 0; i < thread_num; ++i) {
+    threads[i]->join();
+  }
+  return result;
+}
+
+void MatrixParallelProductThread(const Matrix &matrix_1, const Matrix &matrix_2, Matrix &result,
+                                  size_t start_elem, size_t end_elem) {
+  size_t i, calc_length = matrix_1.GetColNumber(), col_length = matrix_2.GetColNumber(),
+  row = start_elem / col_length, col = start_elem % col_length;
+  for (; start_elem < end_elem; ++start_elem) {
+    result[row][col] = 0;
+    for (i = 0; i < calc_length; ++i) {
+      result[row][col] += matrix_1[row][i] * matrix_2[i][col];
+    }
+    if (++col == col_length) {
+      ++row; col = 0;
+    }
+  }
+}  
+\end{lstlisting}
+\end{document}
